@@ -1,17 +1,10 @@
 <?php
-// Nyalakan detektor error
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
+// 1. Trik X-Ray: Paksa Laravel merespons dengan JSON agar tidak memuat tampilan (view)
+$_SERVER['HTTP_ACCEPT'] = 'application/json';
 
-// Alihkan semua riwayat dan cache ke folder sementara Vercel (/tmp)
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp';
+// 2. Alihkan folder kompilasi ke /tmp yang diizinkan Vercel
 putenv('VIEW_COMPILED_PATH=/tmp');
-$_ENV['CACHE_DRIVER'] = 'array';
-putenv('CACHE_DRIVER=array');
-$_ENV['SESSION_DRIVER'] = 'cookie';
-putenv('SESSION_DRIVER=cookie');
-$_ENV['LOG_CHANNEL'] = 'stderr';
-putenv('LOG_CHANNEL=stderr');
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp';
 
-// Panggil mesin utama bawaan Laravel
+// 3. Jalankan mesin utama
 require __DIR__ . '/../public/index.php';
