@@ -11,13 +11,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\User\HomeController;
 use App\Http\Controllers\User\ProdukController;
 use App\Http\Controllers\User\CartController;
-use App\Http\Controllers\User\KemitraanController;
 use App\Http\Controllers\User\CheckoutController;
 use App\Http\Controllers\User\AboutController;
 use App\Http\Controllers\User\ContactController;
 use App\Http\Controllers\User\InvoiceController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\User\KemitraanController;
+use App\Http\Controllers\Admin\KemitraanController as AdminKemitraanController;
+
+
 
 Route::get('/invoice/{id}', [InvoiceController::class, 'show']);
 /*
@@ -157,9 +160,17 @@ Route::post('/admin/transaksi/{id}/tolak', [TransaksiController::class, 'tolak']
     Route::get('/customer', [CustomerController::class, 'index']);
     Route::get('/customer/{id}', [CustomerController::class, 'show']);
 
+/*
+|--------------------------------------------------------------------------
+| KEMITRAAN ADMIN
+|--------------------------------------------------------------------------
+*/
 
+Route::get('/kemitraan', [AdminKemitraanController::class, 'index']);
 
+Route::get('/kemitraan/konfirmasi/{id}', [AdminKemitraanController::class, 'konfirmasi']);
 
+Route::get('/kemitraan/tolak/{id}', [AdminKemitraanController::class, 'tolak']);
 });
 
 Route::prefix('admin')->group(function () {
