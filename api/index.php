@@ -7,13 +7,12 @@ define('LARAVEL_START', microtime(true));
 
 // Muat komponen inti Laravel
 require __DIR__ . '/../vendor/autoload.php';
-// paksa deploy ke vercel 1
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
-// 1. Pindahkan seluruh "organ dalam" Laravel ke folder /tmp (bebas akses di Vercel)
+// 1. Pindahkan seluruh "organ dalam" Laravel ke folder /tmp
 $app->useStoragePath('/tmp/storage');
 
-// 2. Buat jalur foldernya secara otomatis agar Laravel tidak panik
+// 2. Buat jalur foldernya secara otomatis
 $dirs = [
     '/tmp/storage/framework/views',
     '/tmp/storage/framework/cache',
@@ -28,5 +27,18 @@ foreach ($dirs as $dir) {
     }
 }
 
-// 3. Nyalakan mesin utama!
-$app->handleRequest(Illuminate\Http\Request::capture());
+// 3. Tangkap Request pengguna
+$request = Illuminate\Http\Request::capture();
+
+// 4. Proses dan TAMPILKAN ke layar browser (Bagian krusial yang sebelumnya terlewat)
+if (method_exists($app, 'handleRequest')) {
+    // Mode Laravel 11
+    $response = $app->handleRequest($request);
+    $response->send();
+} else {
+    // Mode Laravel 10 ke bawah
+    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+    $response = $kernel->handle($request);
+    $response->send();
+    $kernel->terminate($request, $response);
+}
