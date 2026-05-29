@@ -7,6 +7,7 @@ define('LARAVEL_START', microtime(true));
 
 // Muat komponen inti Laravel
 require __DIR__ . '/../vendor/autoload.php';
+// paksa deploy ke vercel 1
 $app = require_once __DIR__.'/../bootstrap/app.php';
 
 // 1. Pindahkan seluruh "organ dalam" Laravel ke folder /tmp (bebas akses di Vercel)
