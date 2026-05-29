@@ -3,42 +3,15 @@
 ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-define('LARAVEL_START', microtime(true));
+// Alihkan semua riwayat dan cache ke folder sementara Vercel (/tmp)
+$_ENV['VIEW_COMPILED_PATH'] = '/tmp';
+putenv('VIEW_COMPILED_PATH=/tmp');
+$_ENV['CACHE_DRIVER'] = 'array';
+putenv('CACHE_DRIVER=array');
+$_ENV['SESSION_DRIVER'] = 'cookie';
+putenv('SESSION_DRIVER=cookie');
+$_ENV['LOG_CHANNEL'] = 'stderr';
+putenv('LOG_CHANNEL=stderr');
 
-// Muat komponen inti Laravel
-require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__.'/../bootstrap/app.php';
-
-// 1. Pindahkan seluruh "organ dalam" Laravel ke folder /tmp
-$app->useStoragePath('/tmp/storage');
-
-// 2. Buat jalur foldernya secara otomatis
-$dirs = [
-    '/tmp/storage/framework/views',
-    '/tmp/storage/framework/cache',
-    '/tmp/storage/framework/cache/data',
-    '/tmp/storage/framework/sessions',
-    '/tmp/storage/logs'
-];
-
-foreach ($dirs as $dir) {
-    if (!is_dir($dir)) {
-        mkdir($dir, 0777, true);
-    }
-}
-
-// 3. Tangkap Request pengguna
-$request = Illuminate\Http\Request::capture();
-
-// 4. Proses dan TAMPILKAN ke layar browser (Bagian krusial yang sebelumnya terlewat)
-if (method_exists($app, 'handleRequest')) {
-    // Mode Laravel 11
-    $response = $app->handleRequest($request);
-    $response->send();
-} else {
-    // Mode Laravel 10 ke bawah
-    $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-    $response = $kernel->handle($request);
-    $response->send();
-    $kernel->terminate($request, $response);
-}
+// Panggil mesin utama bawaan Laravel
+require __DIR__ . '/../public/index.php';
