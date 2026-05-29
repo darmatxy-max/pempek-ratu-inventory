@@ -1,18 +1,31 @@
 <?php
-// 1. Paksa Vercel menggunakan folder sementara (/tmp) karena sistem Vercel Read-Only
-$_ENV['VIEW_COMPILED_PATH'] = '/tmp';
-$_SERVER['VIEW_COMPILED_PATH'] = '/tmp';
-putenv('VIEW_COMPILED_PATH=/tmp');
-
-// 2. Bypass semua folder storage yang mungkin hilang karena Git
-putenv('CACHE_STORE=array');
-putenv('CACHE_DRIVER=array');
-putenv('SESSION_DRIVER=cookie');
-putenv('LOG_CHANNEL=stderr');
-
-// 3. Tampilkan error asli (jika masih ada) ke layar browser
-ini_set('display_errors', 1);
+// Nyalakan detektor error
+ini_set('display_errors', '1');
 error_reporting(E_ALL);
 
-// 4. Jalankan mesin utama Laravel
-require __DIR__ . '/../public/index.php';
+define('LARAVEL_START', microtime(true));
+
+// Muat komponen inti Laravel
+require __DIR__ . '/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+
+// 1. Pindahkan seluruh "organ dalam" Laravel ke folder /tmp (bebas akses di Vercel)
+$app->useStoragePath('/tmp/storage');
+
+// 2. Buat jalur foldernya secara otomatis agar Laravel tidak panik
+$dirs = [
+    '/tmp/storage/framework/views',
+    '/tmp/storage/framework/cache',
+    '/tmp/storage/framework/cache/data',
+    '/tmp/storage/framework/sessions',
+    '/tmp/storage/logs'
+];
+
+foreach ($dirs as $dir) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+}
+
+// 3. Nyalakan mesin utama!
+$app->handleRequest(Illuminate\Http\Request::capture());
